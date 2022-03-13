@@ -1,4 +1,6 @@
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -7,17 +9,18 @@ import java.util.logging.Logger;
 
 public class ConnectionHandler {
     Socket socket;
-    PrintStream out;
-    BufferedReader in;
+
+    DataOutputStream out;
+    DataInputStream in;
 
     private final static Logger LOG = Logger.getLogger(ConnectionHandler.class.getName());
 
     public ConnectionHandler(String address, int port) throws IOException {
         this.socket = new Socket(address, port);
-        this.out = new PrintStream(socket.getOutputStream());
-        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.out = new DataOutputStream(socket.getOutputStream());
+        this.in = new DataInputStream(socket.getInputStream());
 
-        LOG.info("Connected new Socket with address: " + address + "and port: " + port);
+        LOG.info("Connected new Socket with address: " + address + " and port: " + port);
     }
 
     public String authMsg() {
@@ -27,17 +30,20 @@ public class ConnectionHandler {
 
     public void sendMsg(String msg) {
 
-        LOG.info("Attempting to send message: " + msg + "to socket.");
-        out.print(msg);
+        LOG.info("Attempting to send message: " + msg + " to socket.");
+        try {
+            out.write(msg.getBytes());
+        } catch (IOException e) {
+            LOG.info("Handling exception sendMsg not implemented: " + e);
+        }
     }
 
     public String recvMsg() {
-        LOG.info("Attempting to receive message");
         String msgRcvd;
 
         try {
+            LOG.info("Attempting to receive message");
             msgRcvd = in.readLine();
-            msgRcvd.trim();
             LOG.info("Received message :" + msgRcvd);
             return msgRcvd;
         } catch (IOException e) {

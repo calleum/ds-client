@@ -14,8 +14,19 @@ public class Client extends ConnectionHandler {
 
     public void makeHandshake() throws IOException {
         LOG.info("Initiating Handshake");
-        sendMsg(authMsg());
+        sendMsg(CmdConstants.HELO);
+
         String server_response = recvMsg();
+        LOG.info(server_response);
+        if (!server_response.equals(CmdConstants.OK)) {
+            throw new Error("Error in handshake sequence");
+        }
+
+        String auth = authMsg();
+        LOG.info(auth);
+        sendMsg(authMsg());
+        server_response = recvMsg();
+
         if (server_response.equals(CmdConstants.OK)) {
             LOG.info("Handshake Completed");
         } else {
