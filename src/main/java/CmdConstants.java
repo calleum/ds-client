@@ -21,4 +21,5 @@ public interface CmdConstants {
     public static final String TERM = "TERM";
     public static final String ERR = "ERR";
     public static final String OK = "OK";
+    public static final String LRR = "LRR";
 }

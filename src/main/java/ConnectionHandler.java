@@ -1,24 +1,21 @@
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.logging.Logger;
 
 public class ConnectionHandler {
     Socket socket;
-
-    DataOutputStream out;
-    DataInputStream in;
+    PrintWriter out;
+    BufferedReader in;
 
     private final static Logger LOG = Logger.getLogger(ConnectionHandler.class.getName());
 
     public ConnectionHandler(String address, int port) throws IOException {
         this.socket = new Socket(address, port);
-        this.out = new DataOutputStream(socket.getOutputStream());
-        this.in = new DataInputStream(socket.getInputStream());
+        this.out = new PrintWriter(socket.getOutputStream());
+        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         LOG.info("Connected new Socket with address: " + address + " and port: " + port);
     }
@@ -29,27 +26,23 @@ public class ConnectionHandler {
     }
 
     public void sendMsg(String msg) {
-
         LOG.info("Attempting to send message: " + msg + " to socket.");
-        try {
-            out.write(msg.getBytes());
-        } catch (IOException e) {
-            LOG.info("Handling exception sendMsg not implemented: " + e);
-        }
+        out.print(msg);
+        out.flush();
     }
 
     public String recvMsg() {
-        String msgRcvd;
+        char[] buffer = new char[1024];
+        LOG.info("Attempting to receive message");
+		try {
+			in.read(buffer);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-        try {
-            LOG.info("Attempting to receive message");
-            msgRcvd = in.readLine();
-            LOG.info("Received message :" + msgRcvd);
-            return msgRcvd;
-        } catch (IOException e) {
-            LOG.info("Unable to receive message due to : " + e);
-        }
-        return null;
+		String msgRcvd = new String(buffer, 0, buffer.length) ;
+        LOG.info("Received message :" + msgRcvd);
+        return msgRcvd;
     }
 
     public void stopConnection() {
@@ -60,6 +53,10 @@ public class ConnectionHandler {
         } catch (IOException e) {
             LOG.info("Handling exception at close not implemented: " + e);
         }
+    }
+
+    public boolean emptyMsg(String ev) {
+        return ev.isEmpty() || ev.startsWith("\n");
     }
 
 }

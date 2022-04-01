@@ -42,3 +42,6 @@ buildNumber.properties
 .classpath
 log
 ds-*.xml
+templates
+testsuite
+servertest.log

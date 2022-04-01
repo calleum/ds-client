@@ -32,7 +32,7 @@ public class ServerConfigHandler {
                 ServerType type = new ServerType(server.getAttribute("type"));
                 int limit = Integer.parseInt(server.getAttribute("limit"));
                 int bootupTime = Integer.parseInt(server.getAttribute("bootupTime"));
-                Double hourlyRate = Double.parseDouble(server.getAttribute("hourlyRate"));
+                int hourlyRate = Integer.parseInt(server.getAttribute("hourlyRate"));
                 int numCores = Integer.parseInt(server.getAttribute("cores"));
                 int memory = Integer.parseInt(server.getAttribute("memory"));
                 int disk = Integer.parseInt(server.getAttribute("disk"));
