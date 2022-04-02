@@ -1,23 +1,22 @@
 public class Server {
-    int id;
-    ServerType type;
-    int limit;
-    int bootupTime;
-    int hourlyRate;
-    int numCores;
-    int memory;
-    int diskSpace;
+    private int id;
+    private ServerType type;
+    private int limit;
+    private int bootupTime;
+    private float hourlyRate;
+    private int numCores; 
+    private int memory;
+    private int diskSpace;
 
     public Server(
-            int id,
-            ServerType type,
-            int limit,
-            int bootupTime, 
-            int hourlyRate,
-            int numCores,
-            int memory,
-            int diskSpace
-            ){
+            final int id,
+            final ServerType type,
+            final int limit,
+            final int bootupTime,
+            final float hourlyRate,
+            final int numCores,
+            final int memory,
+            final int diskSpace) {
         this.id = id;
         this.type = type;
         this.limit = limit;
@@ -26,13 +25,16 @@ public class Server {
         this.numCores = numCores;
         this.memory = memory;
         this.diskSpace = diskSpace;
-            }
+    }
+
+    public Server() {
+    }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(final int id) {
         this.id = id;
     }
 
@@ -40,7 +42,7 @@ public class Server {
         return type.type;
     }
 
-    public void setType(ServerType type) {
+    public void setType(final ServerType type) {
         this.type = type;
     }
 
@@ -48,7 +50,7 @@ public class Server {
         return limit;
     }
 
-    public void setLimit(int limit) {
+    public void setLimit(final int limit) {
         this.limit = limit;
     }
 
@@ -56,15 +58,15 @@ public class Server {
         return bootupTime;
     }
 
-    public void setBootupTime(int bootupTime) {
+    public void setBootupTime(final int bootupTime) {
         this.bootupTime = bootupTime;
     }
 
-    public double getHourlyRate() {
+    public float getHourlyRate() {
         return hourlyRate;
     }
 
-    public void setHourlyRate(int hourlyRate) {
+    public void setHourlyRate(final int hourlyRate) {
         this.hourlyRate = hourlyRate;
     }
 
@@ -72,7 +74,7 @@ public class Server {
         return numCores;
     }
 
-    public void setNumCores(int numCores) {
+    public void setNumCores(final int numCores) {
         this.numCores = numCores;
     }
 
@@ -80,7 +82,7 @@ public class Server {
         return memory;
     }
 
-    public void setMemory(int memory) {
+    public void setMemory(final int memory) {
         this.memory = memory;
     }
 
@@ -88,13 +90,12 @@ public class Server {
         return diskSpace;
     }
 
-    public void setDiskSpace(int diskSpace) {
+    public void setDiskSpace(final int diskSpace) {
         this.diskSpace = diskSpace;
     }
 
-    public boolean isLargerThan(Server other) {
+    public boolean isLargerThan(final Server other) {
         return (this.numCores - other.numCores) > 0;
     }
 
 }
-

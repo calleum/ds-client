@@ -45,3 +45,5 @@ ds-*.xml
 templates
 testsuite
 servertest.log
+workspace
+

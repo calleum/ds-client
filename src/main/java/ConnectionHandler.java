@@ -32,7 +32,7 @@ public class ConnectionHandler {
     }
 
     public String recvMsg() {
-        char[] buffer = new char[1024];
+        char[] buffer = new char[8192];
         LOG.info("Attempting to receive message");
 		try {
 			in.read(buffer);

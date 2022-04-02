@@ -1,10 +1,12 @@
 public class Job {
-    int id;
-    int submissionTime;
-    int estRuntime;
-    int numCores;
-    int memory;
-    int diskSpace;
+    private int id;
+    private int submissionTime;
+    private int estRuntime;
+    private int numCores;
+    private int memory;
+    private int diskSpace;
+
+    public Job() {};
 
     public Job(
             int id,
