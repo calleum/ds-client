@@ -6,7 +6,8 @@ public class Job {
     private int memory;
     private int diskSpace;
 
-    public Job() {};
+    public Job() {
+    };
 
     public Job(
             int id,
@@ -71,4 +72,9 @@ public class Job {
         this.diskSpace = diskSpace;
     }
 
+    @Override
+    public String toString() {
+        return "Job [diskSpace=" + diskSpace + ", estRuntime=" + estRuntime + ", id=" + id + ", memory=" + memory
+                + ", numCores=" + numCores + ", submissionTime=" + submissionTime + "]";
+    }
 }

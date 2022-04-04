@@ -12,7 +12,7 @@ public class ConnectionHandler {
 
     private final static Logger LOG = Logger.getLogger(ConnectionHandler.class.getName());
 
-    public ConnectionHandler(String address, int port) throws IOException {
+    public ConnectionHandler(final String address, final int port) throws IOException {
         this.socket = new Socket(address, port);
         this.out = new PrintWriter(socket.getOutputStream());
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -21,26 +21,26 @@ public class ConnectionHandler {
     }
 
     public String authMsg() {
-        String am = CmdConstants.AUTH + " " + System.getProperty("user.name");
+        final String am = CmdConstants.AUTH + " " + System.getProperty("user.name");
         return am;
     }
 
-    public void sendMsg(String msg) {
+    public void sendMsg(final String msg) {
         LOG.info("Attempting to send message: " + msg + " to socket.");
         out.print(msg);
         out.flush();
     }
 
     public String recvMsg() {
-        char[] buffer = new char[8192];
+        final char[] buffer = new char[8192];
         LOG.info("Attempting to receive message");
-		try {
-			in.read(buffer);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        try {
+            in.read(buffer);
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
 
-		String msgRcvd = new String(buffer, 0, buffer.length) ;
+        final String msgRcvd = new String(buffer, 0, buffer.length);
         LOG.info("Received message :" + msgRcvd);
         if (msgRcvd.contains("ERR")) {
             stopConnection();
@@ -54,12 +54,12 @@ public class ConnectionHandler {
             in.close();
             out.close();
             socket.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOG.info("Handling exception at close not implemented: " + e);
         }
     }
 
-    public boolean emptyMsg(String ev) {
+    public boolean emptyMsg(final String ev) {
         return ev.isEmpty() || ev.startsWith("\n");
     }
 

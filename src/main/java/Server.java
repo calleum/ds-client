@@ -30,19 +30,19 @@ public class Server {
         this.diskSpace = diskSpace;
     }
 
+    public Server() {
+    }
+
     public ServerState getState() {
         return state;
     }
 
-    public void setState(ServerState state) {
+    public void setState(final ServerState state) {
         this.state = state;
     }
 
-    public void setHourlyRate(float hourlyRate) {
+    public void setHourlyRate(final float hourlyRate) {
         this.hourlyRate = hourlyRate;
-    }
-
-    public Server() {
     }
 
     public int getId() {
@@ -113,7 +113,7 @@ public class Server {
         return (this.numCores - other.numCores) > 0;
     }
 
-    public boolean isCapable(Job j) {
+    public boolean isCapable(final Job j) {
         return (this.getNumCores() >= j.getNumCores() &&
                 this.getMemory() >= j.getMemory() &&
                 this.getDiskSpace() >= j.getDiskSpace());

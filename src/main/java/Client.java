@@ -9,8 +9,9 @@ import java.util.logging.Logger;
 public class Client extends ConnectionHandler {
     private final static Logger LOG = Logger.getLogger(Client.class.getName());
     private boolean connected;
+    private Job currentJob;
+
     ArrayList<Server> servers = new ArrayList<Server>();
-    ArrayList<Job> jobs = new ArrayList<Job>();
 
     public Client(final String address, final int port) throws IOException {
         super(address, port);
@@ -33,23 +34,26 @@ public class Client extends ConnectionHandler {
             sendMsg(CmdConstants.REDY);
         } else if (ev.startsWith(CmdConstants.NONE) || emptyMsg(ev)) {
             disconnect();
-            sendMsg(CmdConstants.QUIT);
         } else {
 
             if (ev.startsWith(CmdConstants.OK)) {
                 sendMsg(CmdConstants.REDY);
-            } else if (ev.startsWith("JOBN") || ev.startsWith("JOBP")) {
-                jobs.add(createJobFromData(ev));
+            } else if (ev.startsWith(CmdConstants.JOBP) || ev.startsWith(CmdConstants.JOBN)) {
+                currentJob = createJobFromData(ev);
                 if (servers.isEmpty()) {
                     sendMsg(CmdConstants.GETS_ALL);
                     ev = recvMsg();
-                    sendMsg("OK");
+                    sendMsg(CmdConstants.OK);
                     servers = createServersFromData(recvMsg());
-                    sendMsg("OK");
+                    sendMsg(CmdConstants.OK);
                     ev = recvMsg();
                 }
-                sendMsg(Scheduler.scheduleJob(servers, jobs, SchedulerType.LRR));
-                jobs.remove(0);
+                if (currentJob == null) {
+                    LOG.info("Job was not created, disconnecting from server.");
+                    disconnect();
+                }
+                sendMsg(Scheduler.scheduleJob(servers, currentJob, SchedulerType.LRR));
+                currentJob = null;
             }
         }
     }
@@ -90,6 +94,7 @@ public class Client extends ConnectionHandler {
     }
 
     public boolean disconnect() {
+        sendMsg(CmdConstants.QUIT);
         return this.connected = false;
     }
 }

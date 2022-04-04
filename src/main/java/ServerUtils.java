@@ -16,10 +16,10 @@ public class ServerUtils {
 
     private static Logger LOG = Logger.getLogger(ServerUtils.class.getName());
 
-    public static Server getLargestServer(File fileName) {
+    public static Server getLargestServer(final File fileName) {
         Server largestServer = null;
-        ArrayList<Server> serverList = createServersFromFile(fileName);
-        for (Server s : serverList) {
+        final ArrayList<Server> serverList = createServersFromFile(fileName);
+        for (final Server s : serverList) {
             if (null == largestServer || s.getNumCores() > largestServer.getNumCores()) {
                 largestServer = s;
             }
@@ -27,30 +27,30 @@ public class ServerUtils {
         return largestServer;
     }
 
-    public static ArrayList<Server> createServersFromFile(File fileName) {
-        ArrayList<Server> serverList = new ArrayList<Server>();
+    public static ArrayList<Server> createServersFromFile(final File fileName) {
+        final ArrayList<Server> serverList = new ArrayList<Server>();
         LOG.info("Reading XML file: " + fileName);
 
         try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(fileName);
+            final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            final Document doc = dBuilder.parse(fileName);
 
             doc.getDocumentElement().normalize();
-            NodeList servers = doc.getElementsByTagName("server");
+            final NodeList servers = doc.getElementsByTagName("server");
             for (int i = 0; i < servers.getLength(); i++) {
-                Element server = (Element) servers.item(i);
+                final Element server = (Element) servers.item(i);
 
-                ServerType type = new ServerType(server.getAttribute("type"));
-                int limit = Integer.parseInt(server.getAttribute("limit"));
-                int bootupTime = Integer.parseInt(server.getAttribute("bootupTime"));
-                float hourlyRate = Float.parseFloat(server.getAttribute("hourlyRate"));
-                int numCores = Integer.parseInt(server.getAttribute("cores"));
-                int memory = Integer.parseInt(server.getAttribute("memory"));
-                int disk = Integer.parseInt(server.getAttribute("disk"));
-                ServerState state = ServerState.inactive;
+                final ServerType type = new ServerType(server.getAttribute("type"));
+                final int limit = Integer.parseInt(server.getAttribute("limit"));
+                final int bootupTime = Integer.parseInt(server.getAttribute("bootupTime"));
+                final float hourlyRate = Float.parseFloat(server.getAttribute("hourlyRate"));
+                final int numCores = Integer.parseInt(server.getAttribute("cores"));
+                final int memory = Integer.parseInt(server.getAttribute("memory"));
+                final int disk = Integer.parseInt(server.getAttribute("disk"));
+                final ServerState state = ServerState.inactive;
 
-                Server s = new Server(
+                final Server s = new Server(
                         i,
                         type,
                         state,
@@ -64,14 +64,14 @@ public class ServerUtils {
                 serverList.add(s);
             }
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.info("Unhandled exception: " + e);
         }
         return serverList;
     }
 
-    private static Server parseDataTokens(String[] serverDataTokens) {
-        Server s = new Server();
+    private static Server parseDataTokens(final String[] serverDataTokens) {
+        final Server s = new Server();
         s.setType(new ServerType(serverDataTokens[0]));
         s.setId(Integer.parseInt(serverDataTokens[1]));
         s.setState(ServerState.valueOf(serverDataTokens[2]));
@@ -82,7 +82,7 @@ public class ServerUtils {
         return s;
     }
 
-    public static ArrayList<Server> createServersFromResponse(String serverResponse) {
+    public static ArrayList<Server> createServersFromResponse(final String serverResponse) {
         final ArrayList<Server> serversFromData = new ArrayList<Server>();
         final String[] serverResponseMultiLine = serverResponse.split("\\r?\\n");
 

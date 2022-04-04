@@ -1,0 +1,96 @@
+--- testsuiteclean/demoS1.sh	2022-04-01 12:44:21.000000000 +1100
++++ testsuite/demoS1.sh	2022-04-02 17:37:33.994240806 +1100
+@@ -23,7 +23,9 @@
+ 	exit
+ fi
+ 
+-if [[ $@ != *".class"* ]]; then
++echo "$@"
++
++if [[ ! $@ =~ .*(class|jar).* ]]; then
+ 	echo "No class file or .class extension missing!"
+ 	exit
+ fi
+@@ -37,6 +39,14 @@
+ trap "kill 0" EXIT
+ 
+ newline=""
++{
++    rm -f  *.jar *.class
++    rm -f ds-server
++    cp -f ../target/ds-sim-1.0-SNAPSHOT.jar .
++    cp -f  ../target/ds-server .
++    cp -f  ../src/pre-compiled/ds-client . 
++
++} || echo "ERROR:"
+ 
+ args=$@
+ for arg in $@; do
+@@ -48,7 +58,7 @@
+ done
+ 
+ for arg in $args; do
+-	if [[ $arg == *".class" ]]; then
++	if [[ $arg == *".class" ]] || [[ $arg == *".jar" ]]  ; then
+ 		yourClient=$arg
+ 		echo $arg
+ 		break
+@@ -57,12 +67,17 @@
+ done
+ 
+ isCArg=0
++isJar=0
++isJarArg=''
+ for arg in $args; do
+ 	if [[ $isCArg -eq 1 ]]; then
+ 		clientArgs+=" $arg"
+ 	fi
+ 	if [[ $arg == *".class" ]]; then
+ 		isCArg=1
++    elif [[ $arg == *".jar" ]]; then
++		isJar=1
++        isJarArg='-jar'
+ 	fi
+ done
+ 
+@@ -77,25 +92,25 @@
+ 	sleep 1
+ 	if [[ $newline == "n" ]]; then
+ 		./ds-server -c $conf -v brief -n > $conf-ref-log.txt&
+-		sleep 4
++		sleep 1
+ 		./ds-client -a lrr -n
+ 	else
+ 		./ds-server -c $conf -v brief > $conf-ref-log.txt&
+-		sleep 4
++		sleep 1
+ 		./ds-client -a lrr
+ 	fi
+ 	
+ 	echo "running your implementation ($yourClient)..."
+-	sleep 2
++	sleep 1
+ 	if [[ $newline == "n" ]]; then
+ 		./ds-server -c $conf -v brief -n > $conf-my-log.txt&
+ 	else
+ 		./ds-server -c $conf -v brief > $conf-my-log.txt&
+ 	fi
+-	sleep 4
+-	java $javaArgs $(sed 's/\.class//' <<< $yourClient)$clientArgs
+ 	sleep 1
+-	diff $conf-ref-log.txt $conf-my-log.txt > $configDir/log-diff.txt
++    java $javaArgs $isJarArg $(sed 's/\.(class|jar)//' <<< $yourClient)$clientArgs
++	sleep 1
++	diff -u $conf-ref-log.txt $conf-my-log.txt > $configDir/log-diff.txt
+ 	if [[ -s $configDir/log-diff.txt ]]; then
+ 		echo NOT PASSED!
+ 		echo "$conf: NOT PASSED!" >> $configDir/$resultSummary
+@@ -107,7 +122,7 @@
+ 		echo "$conf: PASSED!" >> $configDir/$resultSummary
+ 	fi
+ 	echo ============
+-	sleep 1
++    #echo "$conf" >> $configDir/$diffLog
+ 	cat $configDir/log-diff.txt >> $configDir/$diffLog
+ done
+ echo

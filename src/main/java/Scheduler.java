@@ -7,11 +7,11 @@ import java.util.logging.Logger;
  */
 public class Scheduler {
     private final static Logger LOG = Logger.getLogger(Client.class.getName());
-    static ArrayDeque<Server> serverQueue = new ArrayDeque<Server>();
-    static final Server largestServer = ServerUtils.getLargestServer(FileConstants.serverConfigFile);
+    private static ArrayDeque<Server> serverQueue = new ArrayDeque<Server>();
+    private static final Server largestServer = ServerUtils.getLargestServer(FileConstants.serverConfigFile);
 
-    public static String scheduleJob(final ArrayList<Server> servers, final ArrayList<Job> job,
-            SchedulerType algorithm) {
+    public static String scheduleJob(final ArrayList<Server> servers, final Job job,
+            final SchedulerType algorithm) {
 
         if (!algorithm.equals(SchedulerType.LRR)) {
             throw new UnsupportedOperationException("algorithm '" + algorithm + "' is not supported");
@@ -20,7 +20,7 @@ public class Scheduler {
         return runSchedulerLRR(servers, job);
     }
 
-    private static String runSchedulerLRR(final ArrayList<Server> servers, final ArrayList<Job> job) {
+    private static String runSchedulerLRR(final ArrayList<Server> servers, final Job job) {
         Server allocatedServer;
 
         if (null == serverQueue || serverQueue.isEmpty()) {
@@ -38,10 +38,18 @@ public class Scheduler {
         if (!serverQueue.isEmpty()) {
             allocatedServer = serverQueue.poll();
             serverQueue.add(allocatedServer);
-            return allocateServerToJob(allocatedServer, job.get(0));
+            return allocateServerToJob(allocatedServer, job);
         }
 
         return CmdConstants.ERR;
+    }
+
+    public static ArrayDeque<Server> getServerQueue() {
+        return serverQueue;
+    }
+
+    public static Server getLargestserver() {
+        return largestServer;
     }
 
     private static String allocateServerToJob(final Server s, final Job j) {
