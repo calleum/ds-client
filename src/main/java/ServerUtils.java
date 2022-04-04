@@ -14,12 +14,21 @@ import org.w3c.dom.NodeList;
  */
 public class ServerUtils {
 
-    static ArrayList<Server> serverList;
-
     private static Logger LOG = Logger.getLogger(ServerUtils.class.getName());
 
+    public static Server getLargestServer(File fileName) {
+        Server largestServer = null;
+        ArrayList<Server> serverList = createServersFromFile(fileName);
+        for (Server s : serverList) {
+            if (null == largestServer || s.getNumCores() > largestServer.getNumCores()) {
+                largestServer = s;
+            }
+        }
+        return largestServer;
+    }
+
     public static ArrayList<Server> createServersFromFile(File fileName) {
-        serverList = new ArrayList<Server>();
+        ArrayList<Server> serverList = new ArrayList<Server>();
         LOG.info("Reading XML file: " + fileName);
 
         try {
@@ -39,10 +48,12 @@ public class ServerUtils {
                 int numCores = Integer.parseInt(server.getAttribute("cores"));
                 int memory = Integer.parseInt(server.getAttribute("memory"));
                 int disk = Integer.parseInt(server.getAttribute("disk"));
+                ServerState state = ServerState.inactive;
 
                 Server s = new Server(
                         i,
                         type,
+                        state,
                         limit,
                         bootupTime,
                         hourlyRate,
@@ -63,12 +74,11 @@ public class ServerUtils {
         Server s = new Server();
         s.setType(new ServerType(serverDataTokens[0]));
         s.setId(Integer.parseInt(serverDataTokens[1]));
-        s.setLimit(Integer.parseInt(serverDataTokens[2]));
+        s.setState(ServerState.valueOf(serverDataTokens[2]));
         s.setBootupTime(Integer.parseInt(serverDataTokens[3]));
-        s.setHourlyRate(Integer.parseInt(serverDataTokens[4]));
-        s.setNumCores(Integer.parseInt(serverDataTokens[5]));
-        s.setMemory(Integer.parseInt(serverDataTokens[6]));
-        s.setDiskSpace(Integer.parseInt(serverDataTokens[7]));
+        s.setNumCores(Integer.parseInt(serverDataTokens[4]));
+        s.setMemory(Integer.parseInt(serverDataTokens[5]));
+        s.setDiskSpace(Integer.parseInt(serverDataTokens[6]));
         return s;
     }
 
@@ -77,7 +87,7 @@ public class ServerUtils {
         final String[] serverResponseMultiLine = serverResponse.split("\\r?\\n");
 
         for (final String line : serverResponseMultiLine) {
-            serversFromData.add(parseDataTokens(line.split("\\s+")));
+            serversFromData.add(parseDataTokens(line.trim().split("\\s+")));
         }
         return serversFromData;
     }

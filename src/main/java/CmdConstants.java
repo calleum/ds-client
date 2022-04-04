@@ -11,6 +11,7 @@ public interface CmdConstants {
     public static final String RESR = "RESR";
     public static final String NONE = "NONE";
     public static final String GETS = "GETS";
+    public static final String GETS_ALL = "GETS All";
     public static final String SCHD = "SCHD";
     public static final String CNTJ = "CNTJ";
     public static final String EJWT = "EJWT";

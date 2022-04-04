@@ -42,6 +42,10 @@ public class ConnectionHandler {
 
 		String msgRcvd = new String(buffer, 0, buffer.length) ;
         LOG.info("Received message :" + msgRcvd);
+        if (msgRcvd.contains("ERR")) {
+            stopConnection();
+            System.exit(1);
+        }
         return msgRcvd;
     }
 

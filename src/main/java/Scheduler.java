@@ -1,38 +1,55 @@
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.logging.Logger;
 
 /**
  * Scheduler
  */
 public class Scheduler {
+    private final static Logger LOG = Logger.getLogger(Client.class.getName());
+    static ArrayDeque<Server> serverQueue = new ArrayDeque<Server>();
+    static final Server largestServer = ServerUtils.getLargestServer(FileConstants.serverConfigFile);
 
-    /**
-     * TO DO: Extend to be a factory for different algorithms in part 2,
-     * Currently uses LRR always.
-     */
-    public String scheduleJob(final ArrayList<Server> servers, final ArrayList<Job> job, SchedulerType algorithm) {
+    public static String scheduleJob(final ArrayList<Server> servers, final ArrayList<Job> job,
+            SchedulerType algorithm) {
+
         if (!algorithm.equals(SchedulerType.LRR)) {
             throw new UnsupportedOperationException("algorithm '" + algorithm + "' is not supported");
         }
+
         return runSchedulerLRR(servers, job);
     }
 
-    private String runSchedulerLRR(final ArrayList<Server> servers, final ArrayList<Job> job) {
-        ArrayList<Server> serversCopy = new ArrayList<Server>(servers);
-        Collections.sort(serversCopy, new ServerComparator());
-        final int largestServerCores = serversCopy.get(0).getNumCores();
+    private static String runSchedulerLRR(final ArrayList<Server> servers, final ArrayList<Job> job) {
+        Server allocatedServer;
 
-        for (final Server s : serversCopy) {
-            if (s.getNumCores() < largestServerCores) {
-                serversCopy.remove(s);
+        if (null == serverQueue || serverQueue.isEmpty()) {
+
+            LOG.info("numcores = " + largestServer.getNumCores());
+            for (final Server s : servers) {
+                // LOG.info(s.getId() + ", " + s.getType() + " " + s.getNumCores());
+                if (s.getType().equals(largestServer.getType()) && s.getNumCores() == largestServer.getNumCores()) {
+                    LOG.info("pushed to queue: " + s.getId() + ", " + s.getType());
+                    serverQueue.add(s);
+                }
             }
         }
-        return allocateServerToJob(serversCopy.get(0), job.get(0));
+
+        if (!serverQueue.isEmpty()) {
+            allocatedServer = serverQueue.poll();
+            serverQueue.add(allocatedServer);
+            return allocateServerToJob(allocatedServer, job.get(0));
+        }
+
+        return CmdConstants.ERR;
     }
 
-    String allocateServerToJob(final Server s, final Job j) {
+    private static String allocateServerToJob(final Server s, final Job j) {
+        if (!s.isCapable(j)) {
+            return CmdConstants.PSHJ;
+        }
         final String allocatedServerDetails = s.getType() + " " + s.getId();
-        return "SCHD " + j.getId() + " " + allocatedServerDetails;
+        return CmdConstants.SCHD + " " + j.getId() + " " + allocatedServerDetails;
     }
 
 }

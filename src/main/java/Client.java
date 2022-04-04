@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.logging.Logger;
 
 /**
@@ -12,7 +11,6 @@ public class Client extends ConnectionHandler {
     private boolean connected;
     ArrayList<Server> servers = new ArrayList<Server>();
     ArrayList<Job> jobs = new ArrayList<Job>();
-    private static File serverConfigFile = new File("ds-system.xml");
 
     public Client(final String address, final int port) throws IOException {
         super(address, port);
@@ -41,15 +39,16 @@ public class Client extends ConnectionHandler {
             if (ev.startsWith(CmdConstants.OK)) {
                 sendMsg(CmdConstants.REDY);
             } else if (ev.startsWith("JOBN") || ev.startsWith("JOBP")) {
-                jobs.add(createJobFromJobN(ev));
-                sendMsg(fmtGetsCapable(jobs.get(0)));
-                ev = recvMsg();
-                sendMsg("OK");
-                ev = recvMsg();
-                servers = createServerFromData(serverConfigFile);
-                sendMsg("OK");
-                ev = recvMsg();
-                sendMsg(scheduleJob(servers, jobs, SchedulerType.LRR));
+                jobs.add(createJobFromData(ev));
+                if (servers.isEmpty()) {
+                    sendMsg(CmdConstants.GETS_ALL);
+                    ev = recvMsg();
+                    sendMsg("OK");
+                    servers = createServersFromData(recvMsg());
+                    sendMsg("OK");
+                    ev = recvMsg();
+                }
+                sendMsg(Scheduler.scheduleJob(servers, jobs, SchedulerType.LRR));
                 jobs.remove(0);
             }
         }
@@ -65,11 +64,16 @@ public class Client extends ConnectionHandler {
         sendMsg(authMsg());
         this.connected = true;
     }
-    public ArrayList<Server> createServerFromData(File fileName) {
+
+    public Server getLargestServerFromFile(File fileName) {
+        return ServerUtils.getLargestServer(fileName);
+    }
+
+    public ArrayList<Server> createServersFromData(File fileName) {
         return ServerUtils.createServersFromFile(fileName);
     }
 
-    public ArrayList<Server> createServerFromData(final String serverResponse) {
+    public ArrayList<Server> createServersFromData(final String serverResponse) {
         return ServerUtils.createServersFromResponse(serverResponse);
     }
 
