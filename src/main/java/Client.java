@@ -30,7 +30,6 @@ public class Client extends ConnectionHandler {
         }
     }
 
-
     private void handleEvent(String ev) {
         if (ev.startsWith(CmdConstants.JCPL)) {
             sendMsg(CmdConstants.REDY);
@@ -66,82 +65,20 @@ public class Client extends ConnectionHandler {
         sendMsg(authMsg());
         this.connected = true;
     }
-
-    /*
-     * TO DO: Extend to be a factory for different algorithms in part 2,
-     * Currently uses LRR always.
-     */
-
-    public String scheduleJob(final ArrayList<Server> servers, final ArrayList<Job> job, SchedulerType algorithm) {
-        if (!algorithm.equals(SchedulerType.LRR)) {
-            throw new UnsupportedOperationException("algorithm '" + algorithm + "' is not supported");
-        }
-        return runSchedulerLRR(servers, job);
-    }
-
-    private String runSchedulerLRR(final ArrayList<Server> servers, final ArrayList<Job> job) {
-        ArrayList<Server> serversCopy = new ArrayList<Server>(servers);
-        Collections.sort(serversCopy, new ServerComparator());
-        final int largestServerCores = serversCopy.get(0).getNumCores();
-
-        for (final Server s : serversCopy) {
-            if (s.getNumCores() < largestServerCores) {
-                serversCopy.remove(s);
-            }
-        }
-        return allocateServerToJob(serversCopy.get(0), job.get(0));
-    }
-
-    String allocateServerToJob(final Server s, final Job j) {
-        final String allocatedServerDetails = s.getType() + " " + s.getId();
-        return "SCHD " + j.getId() + " " + allocatedServerDetails;
-    }
-
     public ArrayList<Server> createServerFromData(File fileName) {
-        return ServerConfigHandler.createServersFromFile(fileName);
+        return ServerUtils.createServersFromFile(fileName);
     }
 
     public ArrayList<Server> createServerFromData(final String serverResponse) {
-
-        final ArrayList<Server> serversFromData = new ArrayList<Server>();
-        final String[] serverResponseMultiLine = serverResponse.split("\\r?\\n");
-
-        for (final String line : serverResponseMultiLine) {
-            serversFromData.add(parseDataTokens(line.split("\\s+")));
-        }
-        return serversFromData;
+        return ServerUtils.createServersFromResponse(serverResponse);
     }
 
     public String fmtGetsCapable(final Job j) {
         return ("GETS Capable " + j.getNumCores() + " " + j.getMemory() + " " + j.getDiskSpace());
     }
 
-    public Job createJobFromJobN(final String jobnResponse) {
-        return parseJobTokens(jobnResponse.trim().split("\\s+"));
-    }
-
-    private Server parseDataTokens(String[] serverDataTokens) {
-        Server s = new Server();
-        s.setType(new ServerType(serverDataTokens[0]));
-        s.setId(Integer.parseInt(serverDataTokens[1]));
-        s.setLimit(Integer.parseInt(serverDataTokens[2]));
-        s.setBootupTime(Integer.parseInt(serverDataTokens[3]));
-        s.setHourlyRate(Integer.parseInt(serverDataTokens[4]));
-        s.setNumCores(Integer.parseInt(serverDataTokens[5]));
-        s.setMemory(Integer.parseInt(serverDataTokens[6]));
-        s.setDiskSpace(Integer.parseInt(serverDataTokens[7]));
-        return s;
-    }
-
-    public Job parseJobTokens(String[] serverJobTokens) {
-        Job j = new Job();
-        j.setId(Integer.parseInt(serverJobTokens[2]));
-        j.setEstRuntime(Integer.parseInt(serverJobTokens[1]));
-        j.setNumCores(Integer.parseInt(serverJobTokens[3]));
-        j.setMemory(Integer.parseInt(serverJobTokens[4]));
-        j.setDiskSpace(Integer.parseInt(serverJobTokens[5]));
-
-        return j;
+    public Job createJobFromData(final String jobnResponse) {
+        return JobUtils.createJobFromJobN(jobnResponse);
     }
 
     public boolean isConnected() {

@@ -6,6 +6,6 @@ class ServerComparator implements Comparator<Server>
     // numCores
     public int compare(Server a, Server b)
     {
-        return a.numCores - b.numCores;
+        return a.getNumCores() - b.getNumCores();
     }
 }
