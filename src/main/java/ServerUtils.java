@@ -91,4 +91,10 @@ public class ServerUtils {
         }
         return serversFromData;
     }
+
+    public static ArrayList<Job> getServerJobList(Server server) {
+        ArrayList<Job> jobs = new ArrayList<>();
+        return jobs;
+    }
+
 }

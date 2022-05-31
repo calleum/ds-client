@@ -5,23 +5,34 @@ public class Job {
     private int numCores;
     private int memory;
     private int diskSpace;
+    private JobState state;
 
     public Job() {
     };
 
     public Job(
             int id,
+            JobState state,
             int submissionTime,
             int estRuntime,
             int numCores,
             int memory,
             int diskSpace) {
         this.id = id;
+        this.state = state;
         this.estRuntime = estRuntime;
         this.submissionTime = submissionTime;
         this.numCores = numCores;
         this.memory = memory;
         this.diskSpace = diskSpace;
+    }
+
+    public JobState getState() {
+        return state;
+    }
+
+    public void setState(JobState state) {
+        this.state = state;
     }
 
     public int getId() {

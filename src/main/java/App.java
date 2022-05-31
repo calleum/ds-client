@@ -1,4 +1,3 @@
-import java.io.IOException;
 
 class App {
     public static void main(String[] args) {
@@ -6,7 +5,7 @@ class App {
         try {
             c = new Client("127.0.0.1", 50000);
             c.run();
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Exception: " + e);
         } finally {
             if (c != null)

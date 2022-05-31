@@ -13,11 +13,18 @@ public class Scheduler {
     public static String scheduleJob(final ArrayList<Server> servers, final Job job,
             final SchedulerType algorithm) {
 
-        if (!algorithm.equals(SchedulerType.LRR)) {
+        if (algorithm.equals(SchedulerType.LRR)) {
+            return runSchedulerLRR(servers, job);
+        } else if (algorithm.equals(SchedulerType.STCF)) {
+            return runSchedulerSTCF(servers, job);
+        } else {
             throw new UnsupportedOperationException("algorithm '" + algorithm + "' is not supported");
         }
 
-        return runSchedulerLRR(servers, job);
+    }
+
+    private static String runSchedulerSTCF(final ArrayList<Server> servers, final Job job) {
+        return CmdConstants.ERR;
     }
 
     private static String runSchedulerLRR(final ArrayList<Server> servers, final Job job) {
@@ -38,7 +45,7 @@ public class Scheduler {
         if (!serverQueue.isEmpty()) {
             allocatedServer = serverQueue.poll();
             serverQueue.add(allocatedServer);
-            return allocateServerToJob(allocatedServer, job);
+            return formatSchedMsg(allocatedServer, job);
         }
 
         return CmdConstants.ERR;
@@ -52,7 +59,7 @@ public class Scheduler {
         return largestServer;
     }
 
-    private static String allocateServerToJob(final Server s, final Job j) {
+    private static String formatSchedMsg(final Server s, final Job j) {
         if (!s.isCapable(j)) {
             return CmdConstants.PSHJ;
         }
