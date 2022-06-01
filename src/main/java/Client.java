@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 /**
@@ -51,13 +52,13 @@ public class Client extends ConnectionHandler {
                 servers = createServersFromData(recvMsg());
                 sendMsg(CmdConstants.OK);
                 ev = recvMsg();
-                sendMsg(Scheduler.scheduleJob(servers, currentJob, SchedulerType.LRR));
+                sendMsg(scheduleJob(servers, currentJob, SchedulerType.LRR));
                 currentJob = null;
             }
         }
     }
 
-    public void makeHandshake() throws IOException {
+    private void makeHandshake() throws IOException {
         LOG.info("Initiating Handshake");
         sendMsg(CmdConstants.HELO);
         final String msg = recvMsg();
@@ -68,31 +69,63 @@ public class Client extends ConnectionHandler {
         this.connected = true;
     }
 
-    public Server getLargestServerFromFile(File fileName) {
+    private HashMap<Server, Integer> getServerWaitTime(ArrayList<Server> servers) {
+        HashMap<Server, Integer> srvWaits = new HashMap<>();
+        for (Server server : servers) {
+            sendMsg(CmdConstants.EJWT + " " + server.getType() + " " + server.getId());
+            Integer waitTime = Integer.parseInt(recvMsg());
+            srvWaits.put(server, waitTime);
+        }
+        return srvWaits;
+    }
+
+    private String scheduleJob(ArrayList<Server> servers, Job job, SchedulerType algorithm) {
+        if (!checkJobSchedulable(job)) {
+            return CmdConstants.PSHJ; // there is no server that can handle the job.
+        }
+
+        String schedulerResult = new String();
+        if (algorithm.equals(SchedulerType.LRR)) {
+            schedulerResult = Scheduler.runSchedulerLRR(servers, job);
+        } else if (algorithm.equals(SchedulerType.STCF)) {
+
+            HashMap<Server, Integer> srvWaits = getServerWaitTime(servers);
+            schedulerResult = Scheduler.runSchedulerSTCF(servers, job, srvWaits);
+        } else {
+            throw new UnsupportedOperationException("algorithm '" + algorithm + "' is not supported");
+        }
+        return schedulerResult;
+    }
+
+    private boolean checkJobSchedulable(Job job) {
+        return getLargestServerFromFile(FileConstants.serverConfigFile).isCapable(job);
+    }
+
+    private Server getLargestServerFromFile(File fileName) {
         return ServerUtils.getLargestServer(fileName);
     }
 
-    public ArrayList<Server> createServersFromData(File fileName) {
+    private ArrayList<Server> createServersFromData(File fileName) {
         return ServerUtils.createServersFromFile(fileName);
     }
 
-    public ArrayList<Server> createServersFromData(final String serverResponse) {
+    private ArrayList<Server> createServersFromData(final String serverResponse) {
         return ServerUtils.createServersFromResponse(serverResponse);
     }
 
-    public String fmtGetsCapable(final Job j) {
+    private String fmtGetsCapable(final Job j) {
         return ("GETS Capable " + j.getNumCores() + " " + j.getMemory() + " " + j.getDiskSpace());
     }
 
-    public Job createJobFromData(final String jobnResponse) {
+    private Job createJobFromData(final String jobnResponse) {
         return JobUtils.createJobFromJobN(jobnResponse);
     }
 
-    public boolean isConnected() {
+    private boolean isConnected() {
         return this.connected;
     }
 
-    public boolean disconnect() {
+    private boolean disconnect() {
         sendMsg(CmdConstants.QUIT);
         return this.connected = false;
     }

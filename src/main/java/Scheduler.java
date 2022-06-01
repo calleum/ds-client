@@ -1,5 +1,6 @@
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 /**
@@ -12,22 +13,10 @@ public class Scheduler {
 
     public static String scheduleJob(final ArrayList<Server> servers, final Job job,
             final SchedulerType algorithm) {
-        if (!largestServer.isCapable(job)) {
-            return CmdConstants.PSHJ; // there is no server that can handle the job.
-        }
 
-        String schedulerResult = new String();
-        if (algorithm.equals(SchedulerType.LRR)) {
-            schedulerResult = runSchedulerLRR(servers, job);
-        } else if (algorithm.equals(SchedulerType.STCF)) {
-            schedulerResult = runSchedulerSTCF(servers, job);
-        } else {
-            throw new UnsupportedOperationException("algorithm '" + algorithm + "' is not supported");
-        }
-        return schedulerResult;
     }
 
-    private static String runSchedulerSTCF(final ArrayList<Server> servers, final Job job) {
+    public static String runSchedulerSTCF(final ArrayList<Server> servers, final Job job, HashMap<Server, Integer> srvWaits) {
         /*
          * LSTJ:
          * @Returns
@@ -46,7 +35,7 @@ public class Scheduler {
         return CmdConstants.ERR;
     }
 
-    private static String runSchedulerLRR(final ArrayList<Server> servers, final Job job) {
+    public static String runSchedulerLRR(final ArrayList<Server> servers, final Job job) {
         Server allocatedServer;
 
         if (null == serverQueue || serverQueue.isEmpty()) {
