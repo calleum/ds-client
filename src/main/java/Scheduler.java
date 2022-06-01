@@ -9,12 +9,11 @@ import java.util.logging.Logger;
 public class Scheduler {
     private final static Logger LOG = Logger.getLogger(Client.class.getName());
     private static ArrayDeque<Server> serverQueue = new ArrayDeque<Server>();
-    private static final Server largestServer = ServerUtils.getLargestServer(FileConstants.serverConfigFile);
 
-    public static String scheduleJob(final ArrayList<Server> servers, final Job job,
+    /* public static String scheduleJob(final ArrayList<Server> servers, final Job job,
             final SchedulerType algorithm) {
 
-    }
+    } */
 
     public static String runSchedulerSTCF(final ArrayList<Server> servers, final Job job, HashMap<Server, Integer> srvWaits) {
         /*
@@ -35,7 +34,7 @@ public class Scheduler {
         return CmdConstants.ERR;
     }
 
-    public static String runSchedulerLRR(final ArrayList<Server> servers, final Job job) {
+    public static String runSchedulerLRR(final ArrayList<Server> servers, final Job job, Server largestServer) {
         Server allocatedServer;
 
         if (null == serverQueue || serverQueue.isEmpty()) {
@@ -63,14 +62,10 @@ public class Scheduler {
         return serverQueue;
     }
 
-    public static Server getLargestserver() {
-        return largestServer;
-    }
-
     private static String formatSchedMsg(final Server s, final Job j) {
-        if (!s.isCapable(j)) {
+        /* if (!s.isCapable(j)) {
             return CmdConstants.PSHJ;
-        }
+        } */
         final String allocatedServerDetails = s.getType() + " " + s.getId();
         return CmdConstants.SCHD + " " + j.getId() + " " + allocatedServerDetails;
     }

@@ -4,7 +4,7 @@ class App {
         Client c = null;
         try {
             c = new Client("127.0.0.1", 50000);
-            c.run();
+            c.run(args);
         } catch (Exception e) {
             System.out.println("Exception: " + e);
         } finally {

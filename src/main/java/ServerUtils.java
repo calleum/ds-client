@@ -20,7 +20,9 @@ public class ServerUtils {
         Server largestServer = null;
         final ArrayList<Server> serverList = createServersFromFile(fileName);
         for (final Server s : serverList) {
-            if (null == largestServer || s.getNumCores() > largestServer.getNumCores()) {
+            if (null == largestServer || s.getNumCores() > largestServer.getNumCores() &&
+                s.getMemory() > largestServer.getMemory() &&
+                s.getDiskSpace() > largestServer.getDiskSpace()) {
                 largestServer = s;
             }
         }

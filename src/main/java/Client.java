@@ -9,8 +9,10 @@ import java.util.logging.Logger;
  */
 public class Client extends ConnectionHandler {
     private final static Logger LOG = Logger.getLogger(Client.class.getName());
-    private boolean connected;
+    private boolean connected = true;
     private Job currentJob;
+    private SchedulerType schedulerType;
+    private Server largestServer;
 
     ArrayList<Server> servers = new ArrayList<Server>();
 
@@ -18,7 +20,12 @@ public class Client extends ConnectionHandler {
         super(address, port);
     }
 
-    public void run() {
+    public void run(String[] args) {
+        if (args.length > 1 && args[1].equals("-a".toString())) {
+            setSchedulerType(args[1]);
+        } else {
+            setSchedulerType("LRR");
+        }
         try {
             makeHandshake();
         } catch (Exception e) {
@@ -52,13 +59,16 @@ public class Client extends ConnectionHandler {
                 servers = createServersFromData(recvMsg());
                 sendMsg(CmdConstants.OK);
                 ev = recvMsg();
-                sendMsg(scheduleJob(servers, currentJob, SchedulerType.LRR));
+                sendMsg(scheduleJob(servers, currentJob));
                 currentJob = null;
             }
         }
     }
 
     private void makeHandshake() throws IOException {
+        if (!connected) {
+            return;
+        }
         LOG.info("Initiating Handshake");
         sendMsg(CmdConstants.HELO);
         final String msg = recvMsg();
@@ -79,30 +89,35 @@ public class Client extends ConnectionHandler {
         return srvWaits;
     }
 
-    private String scheduleJob(ArrayList<Server> servers, Job job, SchedulerType algorithm) {
-        if (!checkJobSchedulable(job)) {
-            return CmdConstants.PSHJ; // there is no server that can handle the job.
+    private void setSchedulerType(String schedulerArg) throws IllegalArgumentException {
+        try {
+            schedulerType = SchedulerType.valueOf(schedulerArg.toUpperCase());
+            System.out.println(schedulerType.name());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Setting scheduler type: " + schedulerArg + " failed with exception: " + e);
+            e.printStackTrace();
+            disconnect();
         }
+    }
 
+    private String scheduleJob(ArrayList<Server> servers, Job job) {
         String schedulerResult = new String();
-        if (algorithm.equals(SchedulerType.LRR)) {
-            schedulerResult = Scheduler.runSchedulerLRR(servers, job);
-        } else if (algorithm.equals(SchedulerType.STCF)) {
-
+        if (this.schedulerType.equals(SchedulerType.LRR)) {
+            schedulerResult = Scheduler.runSchedulerLRR(servers, job, getLargestServer());
+        } else if (this.schedulerType.equals(SchedulerType.STCF)) {
             HashMap<Server, Integer> srvWaits = getServerWaitTime(servers);
             schedulerResult = Scheduler.runSchedulerSTCF(servers, job, srvWaits);
         } else {
-            throw new UnsupportedOperationException("algorithm '" + algorithm + "' is not supported");
+            throw new UnsupportedOperationException("algorithm '" + schedulerType + "' is not supported");
         }
         return schedulerResult;
     }
 
-    private boolean checkJobSchedulable(Job job) {
-        return getLargestServerFromFile(FileConstants.serverConfigFile).isCapable(job);
-    }
-
-    private Server getLargestServerFromFile(File fileName) {
-        return ServerUtils.getLargestServer(fileName);
+    private Server getLargestServer() {
+        if (largestServer == null) {
+            this.largestServer = ServerUtils.getLargestServer(FileConstants.serverConfigFile);
+        }
+        return largestServer;
     }
 
     private ArrayList<Server> createServersFromData(File fileName) {
