@@ -80,9 +80,9 @@ public class Client extends ConnectionHandler {
     }
 
     private String scheduleJob(ArrayList<Server> servers, Job job, SchedulerType algorithm) {
-        if (!checkJobSchedulable(job)) {
-            return CmdConstants.PSHJ; // there is no server that can handle the job.
-        }
+        // if (!checkJobSchedulable(job)) {
+        //     return CmdConstants.PSHJ; // there is no server that can handle the job.
+        // }
 
         String schedulerResult = new String();
         if (algorithm.equals(SchedulerType.LRR)) {
