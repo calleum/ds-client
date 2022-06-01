@@ -40,18 +40,17 @@ public class Client extends ConnectionHandler {
                 sendMsg(CmdConstants.REDY);
             } else if (ev.startsWith(CmdConstants.JOBP) || ev.startsWith(CmdConstants.JOBN)) {
                 currentJob = createJobFromData(ev);
-                if (servers.isEmpty()) {
-                    sendMsg(CmdConstants.GETS_ALL);
-                    ev = recvMsg();
-                    sendMsg(CmdConstants.OK);
-                    servers = createServersFromData(recvMsg());
-                    sendMsg(CmdConstants.OK);
-                    ev = recvMsg();
-                }
                 if (currentJob == null) {
                     LOG.info("Job was not created, disconnecting from server.");
                     disconnect();
+                    return;
                 }
+                sendMsg(fmtGetsCapable(currentJob));
+                ev = recvMsg();
+                sendMsg(CmdConstants.OK);
+                servers = createServersFromData(recvMsg());
+                sendMsg(CmdConstants.OK);
+                ev = recvMsg();
                 sendMsg(Scheduler.scheduleJob(servers, currentJob, SchedulerType.LRR));
                 currentJob = null;
             }

@@ -12,18 +12,37 @@ public class Scheduler {
 
     public static String scheduleJob(final ArrayList<Server> servers, final Job job,
             final SchedulerType algorithm) {
+        if (!largestServer.isCapable(job)) {
+            return CmdConstants.PSHJ; // there is no server that can handle the job.
+        }
 
+        String schedulerResult = new String();
         if (algorithm.equals(SchedulerType.LRR)) {
-            return runSchedulerLRR(servers, job);
+            schedulerResult = runSchedulerLRR(servers, job);
         } else if (algorithm.equals(SchedulerType.STCF)) {
-            return runSchedulerSTCF(servers, job);
+            schedulerResult = runSchedulerSTCF(servers, job);
         } else {
             throw new UnsupportedOperationException("algorithm '" + algorithm + "' is not supported");
         }
-
+        return schedulerResult;
     }
 
     private static String runSchedulerSTCF(final ArrayList<Server> servers, final Job job) {
+        /*
+         * LSTJ:
+         * @Returns
+         * jobID jobState(1|2) submitTime startTime estRunTime core memory disk
+         * jobState 1: waiting, 2: running
+         * EXAMPLE:
+         * LSTJ medium 3
+         * DATA 3 59 // 3 jobs and the length of each message is 59 character long
+         * OK
+         * 2 2 139 1208 172 2 100 200
+         * 7 2 192 1224 328 1 120 450
+         * 11 1 324 -1 49 4 380 1000
+         * // -1 for unknown start time since the job 11 is waiting
+         */
+
         return CmdConstants.ERR;
     }
 

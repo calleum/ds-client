@@ -31,6 +31,15 @@ public class ConnectionHandler {
         out.flush();
     }
 
+    public void listSrvJobs() {
+        sendMsg(CmdConstants.LSTJ + " xlarge 1");
+        recvMsg();
+        sendMsg(CmdConstants.OK);
+        recvMsg();
+        sendMsg(CmdConstants.OK);
+        recvMsg();
+    }
+
     public String recvMsg() {
         final char[] buffer = new char[8192];
         LOG.info("Attempting to receive message");
