@@ -7,8 +7,17 @@ import java.util.logging.Logger;
  * Scheduler
  */
 public class Scheduler {
+    private SchedulerType schedulerType;
     private final static Logger LOG = Logger.getLogger(Client.class.getName());
-    private static ArrayDeque<Server> serverQueue = new ArrayDeque<Server>();
+    private static ArrayDeque<Server> serverQueue;
+    private static HashMap<Server, Job[]> scheduledJobs;
+
+    public Scheduler(SchedulerType schedulerType) {
+        this.schedulerType = schedulerType;
+        serverQueue = new ArrayDeque<Server>();
+        scheduledJobs = new HashMap<Server, Job[]>();
+        LOG.info(this.schedulerType.toString());
+    }
 
     /* public static String scheduleJob(final ArrayList<Server> servers, final Job job,
             final SchedulerType algorithm) {
