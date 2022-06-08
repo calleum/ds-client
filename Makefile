@@ -1,4 +1,6 @@
 .PHONY: target
+.PHONY: test
+.PHONY: run-demo
 
 all: target ds-server
 
@@ -13,5 +15,10 @@ clean:
 	rm -f ds-sim/src/ds-server ds-sim/src/ds-client
 
 test: 
-	$(MAKE) -C test
+	./run.sh
 
+run-demo: demo
+	cd test && ./stage2-test-x86 "java -jar ../target/ds-client-0.1.jar" -o tt 
+
+demo: ds-server
+	cp ds-sim/src/ds-server test/
