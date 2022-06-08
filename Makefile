@@ -20,5 +20,8 @@ test:
 run-demo: demo
 	cd test && ./stage2-test-x86 "java -Djava.util.logging.config.file=src/main/resources/logging.properties -jar ../target/ds-client-0.1.jar -a LERT" -o tt 
 
+run-client: 
+	java -Djava.util.logging.config.file=src/main/resources/logging.properties -jar ./target/ds-client-0.1.jar -a LERT  2>&1 | tee client.log
+
 demo: ds-server
 	cp ds-sim/src/ds-server test/
