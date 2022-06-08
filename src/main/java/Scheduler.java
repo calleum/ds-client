@@ -15,9 +15,15 @@ public class Scheduler {
     private ArrayList<Server> sortedServerList;
 
     public Scheduler(ArrayList<Server> servers) {
+        LOG.info("Creating new scheduler serv q");
         largestServerQueue = new ArrayDeque<Server>();
+        LOG.info("Creating new scheduler sortedList");
         sortedServerList.addAll(servers);
-        sortedServerList.sort(new ServerComparator());
+        /* for (Server srv : servers) {
+            LOG.info("adding new server to list: \n" + srv.toString());
+        } */
+        // sortedServerList.sort(new ServerComparator());
+        LOG.info("creating new scheduler jobmap");
         scheduledJobs = new HashMap<Integer, Job>();
 
         LOG.info("Created new scheduler");
@@ -125,11 +131,15 @@ public class Scheduler {
     }
 
     public void markJobCompleted(int jobId) {
-        scheduledJobs.get(jobId)
+        LOG.info("Marking Job Completed.");
+        Job j = scheduledJobs.get(jobId);
+        j.getAssignedTo().setEstRuntime(j.getAssignedTo().getEstRuntime() - j.getEstRuntime());
     }
 
     private String scheduleJob(Server s, Job j) {
-        s.setEstRunTime(s.getEstRuntime() + j.getEstRuntime());
+        LOG.info("scheduling");
+        j.setAssignedTo(s);
+        s.setEstRuntime(s.getEstRuntime() + j.getEstRuntime());
         return formatSchedMsg(s, j);
     }
 
