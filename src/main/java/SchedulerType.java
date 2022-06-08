@@ -1,6 +1,6 @@
 
 public enum SchedulerType {
     LRR,
-    STCF,
+    STCF, LERT,
     ;
 }

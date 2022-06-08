@@ -12,7 +12,7 @@ ds-server -v all -c ./test/S2DemoConfigs/config50-long-high.xml &>$SERVER_LOGFIL
 sleep 0.05
 
 if [[ $FLAG == "java" ]]; then
-    java -jar ./target/ds-sim-1.0-SNAPSHOT.jar &> $CLIENT_LOGFILE
+    java -Djava.util.logging.config.file=src/main/resources/logging.properties -jar ./target/ds-sim-1.0-SNAPSHOT.jar -a LERT  2>&1 | tee $CLIENT_LOGFILE
 elif [[ $FLAG == "c" ]]; then
 	./ds-sim/src/pre-compiled/ds-client -v -a "${2:-lrr}"
 fi

@@ -6,6 +6,7 @@ public class Job {
     private int memory;
     private int diskSpace;
     private JobState state;
+    private Server assignedTo;
 
     public Job() {
     };
@@ -17,7 +18,8 @@ public class Job {
             int estRuntime,
             int numCores,
             int memory,
-            int diskSpace) {
+            int diskSpace
+    ) {
         this.id = id;
         this.state = state;
         this.estRuntime = estRuntime;
@@ -25,6 +27,7 @@ public class Job {
         this.numCores = numCores;
         this.memory = memory;
         this.diskSpace = diskSpace;
+        this.assignedTo = null;
     }
 
     public JobState getState() {

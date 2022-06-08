@@ -50,6 +50,7 @@ public class ServerUtils {
                 final int numCores = Integer.parseInt(server.getAttribute("cores"));
                 final int memory = Integer.parseInt(server.getAttribute("memory"));
                 final int disk = Integer.parseInt(server.getAttribute("disk"));
+                final int estRunTime = 0;
                 final ServerState state = ServerState.inactive;
 
                 final Server s = new Server(
@@ -61,7 +62,9 @@ public class ServerUtils {
                         hourlyRate,
                         numCores,
                         memory,
-                        disk);
+                        disk, 
+                        estRunTime
+                );
 
                 serverList.add(s);
             }
@@ -81,6 +84,7 @@ public class ServerUtils {
         s.setNumCores(Integer.parseInt(serverDataTokens[4]));
         s.setMemory(Integer.parseInt(serverDataTokens[5]));
         s.setDiskSpace(Integer.parseInt(serverDataTokens[6]));
+        s.setEstRunTime(0);
         return s;
     }
 

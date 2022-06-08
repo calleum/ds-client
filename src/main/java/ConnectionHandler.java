@@ -40,9 +40,20 @@ public class ConnectionHandler {
         recvMsg();
     }
 
+    /**
+     * call the backing method recvMsg(int bufsize) after setting the 
+     * buffer size to the default value via polymorphism
+     *
+     * @return msg message received from ds-server
+     */
     public String recvMsg() {
-        final char[] buffer = new char[8192];
-        LOG.info("Attempting to receive message");
+        int bufsize = 1024;
+        return recvMsg(bufsize);
+    }
+
+    public String recvMsg(int bufsize) {
+        final char[] buffer = new char[bufsize];
+        LOG.info("Attempting to receive message with bufsize=" + bufsize);
         try {
             in.read(buffer);
         } catch (final IOException e) {
@@ -50,7 +61,11 @@ public class ConnectionHandler {
         }
 
         final String msgRcvd = new String(buffer, 0, buffer.length);
-        LOG.info("Received message :" + msgRcvd);
+        if (msgRcvd.contains("\n")) {
+            LOG.info("Received message :" + msgRcvd.substring(0, msgRcvd.indexOf("\n")));
+        } else {
+            LOG.info("Received message :" + msgRcvd);
+        }
         if (msgRcvd.contains("ERR")) {
             stopConnection();
             System.exit(1);

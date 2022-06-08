@@ -5,11 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>calleum</groupId>
-  <artifactId>ds-sim</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <name>my-app</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <artifactId>ds-client</artifactId>
+  <version>0.1</version>
+  <name>ds-client</name>
+  <url>https://sr.ht/~calleum/ds-client</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -12,6 +12,7 @@ public class Client extends ConnectionHandler {
     private boolean connected = true;
     private Job currentJob;
     private SchedulerType schedulerType;
+    private Scheduler scheduler;
     private Server largestServer;
 
     ArrayList<Server> servers = new ArrayList<Server>();
@@ -21,7 +22,9 @@ public class Client extends ConnectionHandler {
     }
 
     public void run(String[] args) {
-        if (args.length > 1 && args[1].equals("-a".toString())) {
+        // Check if the desired sched algo is passed in via 
+        // command line, otherwise rely on the default LRR.
+        if (args.length > 1 && args[0].equals("-a".toString())) {
             setSchedulerType(args[1]);
         } else {
             setSchedulerType("LRR");
@@ -30,14 +33,21 @@ public class Client extends ConnectionHandler {
             makeHandshake();
         } catch (Exception e) {
             LOG.info("Exception" + e);
+            connected = false;
         }
 
         while (isConnected()) {
-            handleEvent(recvMsg());
+            handleTransaction(recvMsg());
         }
     }
 
-    private void handleEvent(String ev) {
+    /**
+     * Main transaction handling switch to be nested in the 
+     * event loop.
+     *
+     * @param ev the message returned on each transaction
+     */
+    private void handleTransaction(String ev) {
         if (ev.startsWith(CmdConstants.JCPL)) {
             sendMsg(CmdConstants.REDY);
         } else if (ev.startsWith(CmdConstants.NONE) || emptyMsg(ev)) {
@@ -53,12 +63,17 @@ public class Client extends ConnectionHandler {
                     disconnect();
                     return;
                 }
-                sendMsg(fmtGetsCapable(currentJob));
-                ev = recvMsg();
-                sendMsg(CmdConstants.OK);
-                servers = createServersFromData(recvMsg());
-                sendMsg(CmdConstants.OK);
-                ev = recvMsg();
+
+                if (servers.isEmpty()) {
+                    sendMsg(CmdConstants.GETS_ALL);
+                    ev = recvMsg();
+                    sendMsg(CmdConstants.OK);
+                    servers = createServersFromData(recvMsg());
+                    scheduler = new Scheduler(servers);
+                    sendMsg(CmdConstants.OK);
+                    ev = recvMsg();
+                }
+
                 sendMsg(scheduleJob(servers, currentJob));
                 currentJob = null;
             }
@@ -92,7 +107,7 @@ public class Client extends ConnectionHandler {
     private void setSchedulerType(String schedulerArg) throws IllegalArgumentException {
         try {
             schedulerType = SchedulerType.valueOf(schedulerArg.toUpperCase());
-            System.out.println(schedulerType.name());
+            LOG.info(schedulerType.name() + " is the scheduler type being used.");
         } catch (IllegalArgumentException e) {
             System.err.println("Setting scheduler type: " + schedulerArg + " failed with exception: " + e);
             e.printStackTrace();
@@ -102,14 +117,21 @@ public class Client extends ConnectionHandler {
 
     private String scheduleJob(ArrayList<Server> servers, Job job) {
         String schedulerResult = new String();
+
         if (this.schedulerType.equals(SchedulerType.LRR)) {
-            schedulerResult = Scheduler.runSchedulerLRR(servers, job, getLargestServer());
+            schedulerResult = scheduler.runSchedulerLRR(servers, job, getLargestServer());
+
         } else if (this.schedulerType.equals(SchedulerType.STCF)) {
             HashMap<Server, Integer> srvWaits = getServerWaitTime(servers);
             schedulerResult = Scheduler.runSchedulerSTCF(servers, job, srvWaits);
+
+        } else if (this.schedulerType.equals(SchedulerType.LERT)) {
+            schedulerResult = scheduler.runSchedulerLERT(job);
+
         } else {
             throw new UnsupportedOperationException("algorithm '" + schedulerType + "' is not supported");
         }
+        LOG.info("scheduler result: " + schedulerResult);
         return schedulerResult;
     }
 
