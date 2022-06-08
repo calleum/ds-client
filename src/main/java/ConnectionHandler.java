@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.InputMismatchException;
 import java.util.logging.Logger;
 
 public class ConnectionHandler {
@@ -31,6 +32,23 @@ public class ConnectionHandler {
         out.flush();
     }
 
+    /**
+     * Parse the msg split by whitespace to
+     * retrieve the incoming data message
+     * size.
+     *
+     * @param dataMsg deserialised message from ds-server
+     */
+    public int dataMsg(String dataMsg) {
+        String[] toks = dataMsg.trim().split("\\s+");
+
+        if (toks.length != 3) {
+            throw new InputMismatchException(dataMsg);
+        }
+
+        return Integer.parseInt(toks[1]) * Integer.parseInt(toks[2]);
+    }
+
     public void listSrvJobs() {
         sendMsg(CmdConstants.LSTJ + " xlarge 1");
         recvMsg();
@@ -41,13 +59,13 @@ public class ConnectionHandler {
     }
 
     /**
-     * call the backing method recvMsg(int bufsize) after setting the 
+     * call the backing method recvMsg(int bufsize) after setting the
      * buffer size to the default value via polymorphism
      *
      * @return msg message received from ds-server
      */
     public String recvMsg() {
-        int bufsize = 1024;
+        int bufsize = 8192;
         return recvMsg(bufsize);
     }
 
@@ -61,14 +79,19 @@ public class ConnectionHandler {
         }
 
         final String msgRcvd = new String(buffer, 0, buffer.length);
-        if (msgRcvd.contains("\n")) {
-            LOG.info("Received message :" + msgRcvd.substring(0, msgRcvd.indexOf("\n")));
-        } else {
-            LOG.info("Received message :" + msgRcvd);
-        }
         if (msgRcvd.contains("ERR")) {
             stopConnection();
             System.exit(1);
+        }
+
+        if (msgRcvd.contains("\n")) {
+            LOG.info("Received message :" + msgRcvd.substring(0, msgRcvd.indexOf("\n")
+                    - 1));
+        } else if (msgRcvd.contains("\0")) {
+            LOG.info("Received message :" + msgRcvd.substring(0, msgRcvd.indexOf("\0")
+                    - 1));
+        } else {
+            LOG.info("Received message :" + msgRcvd);
         }
         return msgRcvd;
     }
