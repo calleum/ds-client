@@ -1,5 +1,6 @@
 # Compiled class file
 *.class
+ds-sim
 
 # Log file
 *.log
@@ -41,6 +42,7 @@ buildNumber.properties
 
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+.settings
 log
 ds-*.xml
 templates
