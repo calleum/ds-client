@@ -1,3 +1,6 @@
 [submodule "ds-sim"]
 	path = ds-sim
 	url = https://bitbucket.org/xtman1/ds-sim.git
+[submodule "test"]
+	path = test
+	url = git@github.com:calleum/ds-sim-tests.git
