@@ -16,6 +16,9 @@ clean:
 
 test: 
 	./run.sh
+	
+run-demo-m1: demo
+	cd test && ./stage2-test-aarch64 "java -Djava.util.logging.config.file=src/main/resources/logging.properties -jar ../target/ds-client-0.1.jar -a LERT" -o tt 
 
 run-demo: demo
 	cd test && ./stage2-test-x86 "java -Djava.util.logging.config.file=src/main/resources/logging.properties -jar ../target/ds-client-0.1.jar -a LERT" -o tt 

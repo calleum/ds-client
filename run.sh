@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 FLAG="$1"
 SERVER_LOGFILE_NAME="server.log"

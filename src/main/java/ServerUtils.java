@@ -21,8 +21,8 @@ public class ServerUtils {
         final ArrayList<Server> serverList = createServersFromFile(fileName);
         for (final Server s : serverList) {
             if (null == largestServer || s.getNumCores() > largestServer.getNumCores() &&
-                s.getMemory() > largestServer.getMemory() &&
-                s.getDiskSpace() > largestServer.getDiskSpace()) {
+                    s.getMemory() > largestServer.getMemory() &&
+                    s.getDiskSpace() > largestServer.getDiskSpace()) {
                 largestServer = s;
             }
         }
@@ -62,9 +62,8 @@ public class ServerUtils {
                         hourlyRate,
                         numCores,
                         memory,
-                        disk, 
-                        estRunTime
-                );
+                        disk,
+                        estRunTime);
 
                 serverList.add(s);
             }
@@ -76,6 +75,8 @@ public class ServerUtils {
     }
 
     private static Server parseDataTokens(final String[] serverDataTokens) {
+        LOG.info("[ " + serverDataTokens[0] + ", " + serverDataTokens[1] + ", " + serverDataTokens[2] + ", " + serverDataTokens[3]
+                + ", " + serverDataTokens[4] + ",  " + serverDataTokens[5] + ",  " + serverDataTokens[6] + " ]");
         final Server s = new Server();
         s.setType(new ServerType(serverDataTokens[0]));
         s.setId(Integer.parseInt(serverDataTokens[1]));
@@ -84,13 +85,13 @@ public class ServerUtils {
         s.setNumCores(Integer.parseInt(serverDataTokens[4]));
         s.setMemory(Integer.parseInt(serverDataTokens[5]));
         s.setDiskSpace(Integer.parseInt(serverDataTokens[6]));
-        s.setEstRunTime(0);
+        s.setEstRuntime(0);
         return s;
     }
 
     public static ArrayList<Server> createServersFromResponse(final String serverResponse) {
         final ArrayList<Server> serversFromData = new ArrayList<Server>();
-        final String[] serverResponseMultiLine = serverResponse.split("\\r?\\n");
+        final String[] serverResponseMultiLine = serverResponse.split("\\r?\\n|\\x00");
 
         for (final String line : serverResponseMultiLine) {
             serversFromData.add(parseDataTokens(line.trim().split("\\s+")));

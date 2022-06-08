@@ -8,7 +8,7 @@ public class Server {
     private int numCores;
     private int memory;
     private int diskSpace;
-    private int estRunTime;
+    private int estRuntime;
 
     public Server(
             final int id,
@@ -20,7 +20,7 @@ public class Server {
             final int numCores,
             final int memory,
             final int diskSpace,
-            final int estRunTime) {
+            final int estRuntime) {
         this.id = id;
         this.type = type;
         this.state = state;
@@ -30,7 +30,7 @@ public class Server {
         this.numCores = numCores;
         this.memory = memory;
         this.diskSpace = diskSpace;
-        this.estRunTime = estRunTime;
+        this.estRuntime = estRuntime;
     }
 
     public Server() {
@@ -123,16 +123,16 @@ public class Server {
     }
 
     public int getEstRuntime() {
-        return estRunTime;
+        return estRuntime;
     }
 
-    public void setEstRunTime(int estRunTime) {
-        this.estRunTime = estRunTime;
+    public void setEstRuntime(int estRuntime) {
+        this.estRuntime = estRuntime;
     }
 
     @Override
     public String toString() {
-        return "Server [estRunTime=" + estRunTime + ", type=" + type.getType() + ", memory=" + memory + ", numCores=" + numCores + ", hourlyRate=" + hourlyRate + ", id=" + id + ", limit=" + limit
+        return "Server [estRuntime=" + estRuntime + ", type=" + type.getType() + ", memory=" + memory + ", numCores=" + numCores + ", hourlyRate=" + hourlyRate + ", id=" + id + ", limit=" + limit
                  + ", state=" + state + "]";
     }
 }

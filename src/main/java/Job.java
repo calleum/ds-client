@@ -30,6 +30,14 @@ public class Job {
         this.assignedTo = null;
     }
 
+    public Server getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(Server assignedTo) {
+        this.assignedTo = assignedTo;
+    }
+
     public JobState getState() {
         return state;
     }
